@@ -624,46 +624,7 @@ class Free_proxy_cz(Provider):
         #     _urls.append(url)
 
 
-class Proxyb_net(Provider):
-    domain = 'proxyb.net'
-    _port_pattern_b64 = re.compile(r"stats\('([\w=]+)'\)")
-    _port_pattern = re.compile(r"':(\d+)'")
 
-    def find_proxies(self, page):
-        if not page:
-            return []
-        _hosts, _ports = page.split('","ports":"')
-        hosts, ports = [], []
-        for host in _hosts.split('<\/tr><tr>'):  # noqa: W605
-            host = IPPattern.findall(host)
-            if not host:
-                continue
-            hosts.append(host[0])
-        ports = [
-            self._port_pattern.findall(b64decode(port).decode())[0]
-            for port in self._port_pattern_b64.findall(_ports)
-        ]
-        return [(host, port) for host, port in zip(hosts, ports)]
-
-    async def _pipe(self):
-        url = 'http://proxyb.net/ajax.php'
-        method = 'POST'
-        data = {
-            'action': 'getProxy',
-            'p': 0,
-            'page': '/anonimnye_proksi_besplatno.html',
-        }
-        hdrs = {'X-Requested-With': 'XMLHttpRequest'}
-        urls = [
-            {
-                'url': url,
-                'data': {**data, 'p': p},
-                'method': method,
-                'headers': hdrs,
-            }
-            for p in range(0, 151)
-        ]
-        await self._find_on_pages(urls)
 
 
 class Proxylistplus_com(Provider):
@@ -718,10 +679,6 @@ PROVIDERS = [
         url='https://freshfreeproxylist.wordpress.com/',
         proto=('HTTP', 'CONNECT:80', 'HTTPS', 'CONNECT:25'),
     ),  # 50
-    Provider(
-        url='http://proxytime.ru/http',
-        proto=('HTTP', 'CONNECT:80', 'HTTPS', 'CONNECT:25'),
-    ),  # 1400
     Provider(
         url='https://free-proxy-list.net/',
         proto=('HTTP', 'CONNECT:80', 'HTTPS', 'CONNECT:25'),
